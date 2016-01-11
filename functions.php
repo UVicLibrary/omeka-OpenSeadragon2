@@ -16,10 +16,10 @@ function annotations_install()
 CREATE TABLE IF NOT EXISTS `{$db->prefix}annotations` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `image_id` TEXT,
-    `x` INT,
-    `xlen` INT,
-    `y` INT,
-    `ylen` INT,
+    `x` DECIMAL( 20, 19 ),
+    `xlen` DECIMAL( 20, 19 ),
+    `y` DECIMAL( 20, 19 ),
+    `ylen` DECIMAL( 20, 19 ),
     `title` VARCHAR(255) DEFAULT NULL,
     `author` VARCHAR(255),
     `description` TEXT,
@@ -76,8 +76,12 @@ function insert_annotation($ann) {
 	$values .= ", NOW()";
 	$sql .= $cols . $values . ")";
 	
-    $db->query($sql);
-    	return $sql;
+    $success = $db->query($sql);
+    
+    	return array(
+    		"success" => $success,
+    		"sql" => $sql
+    		);
 }
 
 function update_annotation($ann) {
@@ -101,19 +105,23 @@ function update_annotation($ann) {
 	$set .= ", `modified`=NOW()";
 	$sql .= $set . $where;
 	
-    $db->query($sql);
-    	return $sql;
+    $success = $db->query($sql);
+    
+    	return array(
+    		"success" => $success,
+    		"sql" => $sql
+    		);
 }
 
 function get_annotations($image_id) {
 	$db = get_db();
 	
-	$sql = "SELECT * `{$db->prefix}annotations` WHERE `image_id`='$image_id'";
+	$sql = "SELECT * FROM omeka.{$db->prefix}annotations WHERE `image_id`='$image_id'";
 	$rows = $db->query($sql);
 	$result = Array();
 	
-	if ($rows->num_rows > 0) {
-			while ($row = $rows->fetch_assoc()) {
+	if (count($rows) > 0) {
+			while ($row = $rows->fetch()) {
 				$ann = new Annotation();
 				foreach ($row as $key => $value) {
 					if($key=="id") $ann->id = $value;
@@ -135,7 +143,7 @@ function get_annotations($image_id) {
 					else if($key=="transcript") $ann->transcript = $value;
 					else if($key=="genre") $ann->genre = $value;
 					else if($key=="modified") $ann->modified = $value;
-					else if($key=="owner_id") $ann->owner_id = $value;	
+					else if($key=="owner_id") $ann->owner_id = $value;
 				}
 				$result[] = $ann;
 			}

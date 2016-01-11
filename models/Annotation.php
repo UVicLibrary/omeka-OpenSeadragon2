@@ -154,7 +154,7 @@ class Annotation extends Omeka_Record_AbstractRecord implements Zend_Acl_Resourc
 
     /**
      *Converts vars to an array
-     */
+     */     
     public function toArray()
     {
     	$ann = Array();
@@ -181,7 +181,6 @@ class Annotation extends Omeka_Record_AbstractRecord implements Zend_Acl_Resourc
 		
 		return $ann;
     }
-     
      
     /**
      * Set up mixins for shared behaviors.
